@@ -32,6 +32,7 @@ from io import BytesIO
 # - training datasets can be loaded either from __Local MySQL database__ using a defined __stored procedure__ ('stored_procedure') or from __BackBlaze B2 cloud storage__
 # - __multiple version of training datasets__ available, __defined by 'stored_procedure'__ (for MySQL load) __or 'file_name'__ (for Backblaze B2 load)
 # >- __dataset_v1__: defined by file name __'ANN_binary_classification_training_dataset_v1'__ or stored procedure __'p_ANN_binary_classification_v1'__ based on comparison of __control and Latrunculin A-exposed cells__
+# >- __dataset_v2__: defined by file name __'ANN_binary_classification_training_dataset_v2'__ or stored procedure __'p_ANN_binary_classification_v2'__ based on comparison of __WT and _tpm1, tpm2_ and _myo4_ mutants__
 
 # * __MySQL authentication parameters__
 # >- __specify (if applicable)__
@@ -48,6 +49,7 @@ engine = create_engine(connection_string)
 
 # * __used stored procedure__
 stored_procedure= 'p_ANN_binary_classification_v1'
+# stored_procedure= 'p_ANN_binary_classification_v2'
 
 # * __Backblaze B2 authentication parameters__
 #Backblaze B2 authentication
@@ -55,6 +57,7 @@ data_bucket_name= 'ANN-training-datasets'
 bucket_key_id= '003b5f880f95dd40000000008';
 bucket_key= 'K003WdKudSgD37pMoUBipXP6nLgGAP0'
 file_name= 'ANN_binary_classification_training_dataset_v1.csv'
+# file_name= 'ANN_binary_classification_training_dataset_v2.csv'
 
 # * __establish Baskblaze B2 connection__
 #connection and authentication
