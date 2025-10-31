@@ -110,7 +110,7 @@ def data_load(source= 'backblaze', starting_timepoint= 0, ending_timepoint= 1000
 # >- to load from local __MySQL__ pass the argument __'mysql'__
 # >- to load from __cloud__ pass the argument __'backblaze'__
 # >- define __temporal range of included data__ (sequestration stage (movement and coalescence) of aggregate processing), default is the entire dataset
-dataset= data_load(source= 'mysql', starting_timepoint= 0, ending_timepoint= 100)
+dataset= data_load(source= 'mysql', starting_timepoint= 200, ending_timepoint= 240)
 dataset.head()
 
 
@@ -173,7 +173,7 @@ ax[0].bar(counts_per_category.category,
           alpha= .4,
           edgecolor= 'black',
           linewidth= 2)
-ax[0].set_ylim(0, 80000)
+# ax[0].set_ylim(0, 80000)
 ax[0].set_title('data-entry count per class',
                 weight= 'bold')
 ax[0].set_xlabel('category', weight= 'bold')
@@ -191,8 +191,8 @@ for i, category in enumerate(counts_per_category_per_tmpt.category.unique()):
 ax[1].set_title('data-entry count per class and timepoint',
                 weight= 'bold')
 ax[1].legend(frameon= False)
-ax[1].set_ylim(0, 5000)
-ax[1].set_xlim(220, 400)
+# ax[1].set_ylim(0, 5000)
+# ax[1].set_xlim(220, 400)
 ax[1].set_xlabel('timepoint (min)', weight= 'bold')
 ax[1].set_ylabel('count', weight= 'bold');
 
