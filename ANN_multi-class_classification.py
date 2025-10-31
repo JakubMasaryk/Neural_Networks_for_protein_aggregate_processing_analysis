@@ -110,7 +110,7 @@ def data_load(source= 'backblaze', starting_timepoint= 0, ending_timepoint= 1000
 # >- to load from local __MySQL__ pass the argument __'mysql'__
 # >- to load from __cloud__ pass the argument __'backblaze'__
 # >- define __temporal range of included data__ (sequestration stage (movement and coalescence) of aggregate processing), default is the entire dataset
-dataset= data_load(source= 'mysql', starting_timepoint= 200, ending_timepoint= 240)
+dataset= data_load(source= 'mysql', starting_timepoint= 300, ending_timepoint= 360)
 dataset.head()
 
 
