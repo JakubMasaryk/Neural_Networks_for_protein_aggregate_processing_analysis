@@ -1,6 +1,6 @@
 ### __Artificial Neural Network-Based Binary Classification for Analyzing Aggregate-Processing Dynamics__
 
-# - binary classification to __normal cells__ and cells with __dirupted aggregate movement and coalescence__ or __dirupted aggregate clearance__
+# - binary classification to __normal cells__ and cells with __dirupted aggregate movement and coalescence (v1, v2)__, __dirupted aggregate clearance (v3)__ or __lower aggregate formation (v4)__
 # - classification based on combination of __three parameters__: __timepoint__ (minutes), average __size__ of a single aggregate and average __number__ of aggregates per cell
 # - data from __quantitative image analyses__ 
 # - data entries from __single cells__
@@ -34,6 +34,7 @@ from io import BytesIO
 # >- __dataset_v1__: defined by file name __'ANN_binary_classification_training_dataset_v1'__ or stored procedure __'p_ANN_binary_classification_v1'__ based on comparison of __control and Latrunculin A-exposed cells__
 # >- __dataset_v2__: defined by file name __'ANN_binary_classification_training_dataset_v2'__ or stored procedure __'p_ANN_binary_classification_v2'__ based on comparison of __WT and _tpm1, tpm2_ and _myo4_ mutants__
 # >- __dataset_v3__: defined by file name __'ANN_binary_classification_training_dataset_v3'__ or stored procedure __'p_ANN_binary_classification_v3'__ based on comparison of __WT and _ase1, bim1_ and _num1_ mutants__
+# >- __dataset_v4__: defined by file name __'ANN_binary_classification_training_dataset_v4'__ or stored procedure __'p_ANN_binary_classification_v4'__ based on comparison of __control and Cycloheximide-exposed cells__
 
 # * __MySQL authentication parameters__
 # >- __specify (if applicable)__
@@ -52,6 +53,7 @@ engine = create_engine(connection_string)
 stored_procedure= 'p_ANN_binary_classification_v1'
 # stored_procedure= 'p_ANN_binary_classification_v2'
 # stored_procedure= 'p_ANN_binary_classification_v3'
+# stored_procedure= 'p_ANN_binary_classification_v4'
 
 # * __Backblaze B2 authentication parameters__
 #Backblaze B2 authentication
@@ -61,6 +63,7 @@ bucket_key= 'K003WdKudSgD37pMoUBipXP6nLgGAP0'
 file_name= 'ANN_binary_classification_training_dataset_v1.csv'
 # file_name= 'ANN_binary_classification_training_dataset_v2.csv'
 # file_name= 'ANN_binary_classification_training_dataset_v3.csv'
+# file_name= 'ANN_binary_classification_training_dataset_v4.csv'
 
 # * __establish Baskblaze B2 connection__
 #connection and authentication
@@ -124,8 +127,11 @@ dataset.info(memory_usage= 'deep')
 
 # * __missing values__
 dataset.isna().sum()
+# >- __fill in the NaNs__ for foci __area__ with __0__, only for __v4 data__
+dataset= dataset.assign(single_focus_avg_area= dataset.single_focus_avg_area.fillna(0))
 
 # * __outlier removal__
+# >- __DO NOT__ apply on the __v4 data__ (aggregate formation analyses)
 def outlier_removal_iqr(data, col):
     try:
         Q1 = data[col].quantile(0.25)
