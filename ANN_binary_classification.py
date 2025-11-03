@@ -1,6 +1,6 @@
 ### __Artificial Neural Network-Based Binary Classification for Analyzing Aggregate-Processing Dynamics__
 
-# - binary classification to __normal cells__ and cells with __dirupted aggregate movement and coalescence__ 
+# - binary classification to __normal cells__ and cells with __dirupted aggregate movement and coalescence__ or __dirupted aggregate clearance__
 # - classification based on combination of __three parameters__: __timepoint__ (minutes), average __size__ of a single aggregate and average __number__ of aggregates per cell
 # - data from __quantitative image analyses__ 
 # - data entries from __single cells__
@@ -33,6 +33,7 @@ from io import BytesIO
 # - __multiple version of training datasets__ available, __defined by 'stored_procedure'__ (for MySQL load) __or 'file_name'__ (for Backblaze B2 load)
 # >- __dataset_v1__: defined by file name __'ANN_binary_classification_training_dataset_v1'__ or stored procedure __'p_ANN_binary_classification_v1'__ based on comparison of __control and Latrunculin A-exposed cells__
 # >- __dataset_v2__: defined by file name __'ANN_binary_classification_training_dataset_v2'__ or stored procedure __'p_ANN_binary_classification_v2'__ based on comparison of __WT and _tpm1, tpm2_ and _myo4_ mutants__
+# >- __dataset_v3__: defined by file name __'ANN_binary_classification_training_dataset_v3'__ or stored procedure __'p_ANN_binary_classification_v3'__ based on comparison of __WT and _ase1, bim1_ and _num1_ mutants__
 
 # * __MySQL authentication parameters__
 # >- __specify (if applicable)__
@@ -50,6 +51,7 @@ engine = create_engine(connection_string)
 # * __used stored procedure__
 stored_procedure= 'p_ANN_binary_classification_v1'
 # stored_procedure= 'p_ANN_binary_classification_v2'
+# stored_procedure= 'p_ANN_binary_classification_v3'
 
 # * __Backblaze B2 authentication parameters__
 #Backblaze B2 authentication
@@ -58,6 +60,7 @@ bucket_key_id= '003b5f880f95dd40000000008';
 bucket_key= 'K003WdKudSgD37pMoUBipXP6nLgGAP0'
 file_name= 'ANN_binary_classification_training_dataset_v1.csv'
 # file_name= 'ANN_binary_classification_training_dataset_v2.csv'
+# file_name= 'ANN_binary_classification_training_dataset_v3.csv'
 
 # * __establish Baskblaze B2 connection__
 #connection and authentication
