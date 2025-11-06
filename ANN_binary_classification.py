@@ -302,3 +302,76 @@ print(cm)
 cr= classification_report(y_data_test, y_data_pred)
 print(cr)
 
+
+
+# ### __Test Prediction for a group of selected mutants__
+# * __experimentally verified__ genes __mutation__ of which leads to a __lower aggregate formation__ (not all mutations)
+# * applicable on __training dataset v4__
+
+# * __data load__
+def data_load(starting_timepoint, ending_timepoint):
+    
+    #query to obtain the desired data
+    query = "call p_lower_formation_mutants_scd_data (%s, %s)"
+    
+    #data load
+    try:
+        print('data loaded')
+        data= pd.read_sql(query, engine, params= (starting_timepoint, ending_timepoint,))
+    except Exception as ex:
+        print(f'data NOT loaded: {ex}')
+        data=  pd.DataFrame()
+        
+    return data
+dataset_for_prediction= data_load(60, 90)
+
+# * __data split: control vs. selected mutant__
+control_data= dataset_for_prediction.loc[dataset_for_prediction.mutation== 'wt control']
+mutant_data= dataset_for_prediction.loc[dataset_for_prediction.mutation!= 'wt control']
+
+# * __function__
+def prediction(data, pretrained_ann= ann, predefined_scaler= scaler, verbose= True):
+    required_cols = ['timepoint_minutes', 'number_of_foci', 'single_focus_avg_area']
+    try:
+        #get the strain
+        strain= data.mutation.unique()
+        # Check for required columns
+        missing = [col for col in required_cols if col not in data.columns]
+        if missing:
+            raise ValueError(f"Missing columns: {missing}")
+        #remove unneccessary columns, transform into 2D array
+        data= data.loc[:, required_cols].values
+        #feature scaling
+        data= predefined_scaler.transform(data)
+        #prediction
+        preds= pretrained_ann.predict(data)
+        #output params
+        mean_prediction= preds.mean()
+        #proportions
+        class_0= (preds < 0.5).sum()/len(preds)
+        class_1= (preds >= 0.5).sum()/len(preds)
+        #outputs
+        if verbose:
+            print(f'strain: {strain[0]}')
+            print(f"Mean prediction: {mean_prediction:.4f}")
+            print(f"Class 0 proportion: {class_0:.4f}")
+            print(f"Class 1 proportion: {class_1:.4f}")
+            print('--------------------')
+
+        return{ 
+            "predictions": preds,
+            "mean_prediction": mean_prediction,
+            "class_0_prop": class_0,
+            "class_1_prop": class_1}
+        
+    except Exception as ex:
+        print(f'data processing and/or prediction FAILED: {ex}')
+        return None
+
+
+# * __WT prediction__
+prediction(control_data)
+
+
+# * __mutant predictions__
+mutant_data.groupby('mutation').apply(lambda x: prediction(x))
