@@ -517,3 +517,96 @@ where
     complete_dataset.timepoint_minutes <= p_ending_timepoint;
 end //
 delimiter ;
+
+
+
+-- experimentally verified mutants having a lower aggregate formation
+drop procedure if exists p_lower_formation_mutants_scd_data;
+delimiter //
+create procedure p_lower_formation_mutants_scd_data(in p_starting_timepoint int, in p_ending_timepoint int)
+	begin
+	with
+	cte_ts_experiments as
+	(
+	select
+		e.date_label,
+		e.microscopy_initial_delay_min,
+		e.microscopy_interval_min
+	from
+		experiments as e
+	inner join
+		experiment_types as et
+	on
+		e.experiment_type_id= et.experiment_type_id
+	where
+		et.experiment_type= 'TS collection screening' and
+		et.experiment_subtype= 'first round' and
+		e.data_quality= 'Good'
+	),
+	cte_initital_cell_count_filter as
+	(
+	select
+		sacm.date_label,
+		sacm.experimental_well_label
+		-- caac.timepoint,
+		-- caac.number_of_cells
+	from
+		strains_and_conditions_main as sacm
+	inner join
+		cte_ts_experiments as cte1
+	on
+		sacm.date_label= cte1.date_label
+	inner join
+		experimental_data_sbw_cell_area_and_counts as caac
+	on
+		sacm.date_label= caac.date_label and
+		sacm.experimental_well_label= caac.experimental_well_label
+	where
+		caac.timepoint= 1 and
+		caac.number_of_cells > 100
+	),
+	cte_selected_experiments as
+	(
+	select distinct
+		sacm.date_label,
+		cte1.microscopy_initial_delay_min,
+		cte1.microscopy_interval_min
+	from
+		strains_and_conditions_main as sacm
+	inner join
+		cte_ts_experiments as cte1
+	on
+		sacm.date_label=cte1.date_label
+	inner join
+		cte_initital_cell_count_filter as cte3
+	on
+		sacm.date_label= cte3.date_label and
+		sacm.experimental_well_label= cte3.experimental_well_label
+	where
+		sacm.mutated_gene_standard_name in ('MTR3', 'NOG1', 'NOP4', 'NOP2')
+	)
+	select
+		sacm.date_label,
+		sacm.experimental_well_label,
+		sacm.mutation,
+		fnaa.timepoint * cte2.microscopy_interval_min - (cte2.microscopy_interval_min - cte2.microscopy_initial_delay_min) as timepoint_minutes,
+		fnaa.fov_cell_id,
+		fnaa.number_of_foci,
+		ifnull(fnaa.total_foci_area/fnaa.number_of_foci, 0) as single_focus_avg_area
+	from
+		strains_and_conditions_main as sacm
+	inner join
+		cte_selected_experiments as cte2
+	on
+		sacm.date_label= cte2.date_label
+	inner join
+		experimental_data_scd_foci_number_and_area as fnaa
+	on
+		sacm.date_label= fnaa.date_label and
+		sacm.experimental_well_label= fnaa.experimental_well_label
+	where
+		sacm.mutated_gene_standard_name in ('-', 'MTR3', 'NOG1', 'NOP4', 'NOP2') and
+        fnaa.timepoint * cte2.microscopy_interval_min - (cte2.microscopy_interval_min - cte2.microscopy_initial_delay_min) >= p_starting_timepoint and
+        fnaa.timepoint * cte2.microscopy_interval_min - (cte2.microscopy_interval_min - cte2.microscopy_initial_delay_min) <= p_ending_timepoint;
+end //
+delimiter ;
